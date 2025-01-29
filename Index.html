@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Venda de perfis cortados</title>  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venda de perfis cortados</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Venda de Perfis Cortados</h1>
+
+  <label for="precoKg">Preço do Kg:</label>
+  <input type="number" id="precoKg" step="0.01" required>
+
+  <label for="medidaCompra">Medida a comprar (mm):</label>
+  <input type="number" id="medidaCompra" value="1">
+
+  <label for="peso">Peso da vara (kg):</label>
+  <input type="number" id="peso" value="6">
+
+  <button onclick="calcularValorVenda()">Calcular</button>
+
+  <h2>Valor de Venda: <span id="valorVenda">0</span></h2>
+
+  <script>
+    function calcularValorVenda() {
+      const precoKg = parseFloat(document.getElementById('precoKg').value);
+      console.log('precoKg: ' + precoKg);
+      const medidaCompra = parseFloat(document.getElementById('medidaCompra').value);
+      const peso = parseFloat(document.getElementById('peso').value);
+      const valorVendaSpan = document.getElementById('valorVenda');
+
+      const pesoCompra = (peso / 6) * medidaCompra;
+      console.log('pesoCompra: ' + pesoCompra);
+      const custo = (pesoCompra * precoKg)/1000;
+      console.log('custo: ' + custo);
+
+      //const valorVenda = ((custo * 1.11)/1000).toFixed(2); // Acréscimo de 11%
+
+      const valorVenda = (custo * 2.22)
+      console.log('valorVenda: ' + valorVenda);
+      
+      valorVendaSpan.textContent = valorVenda.toFixed(2);
+
+
+    }
+  </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
