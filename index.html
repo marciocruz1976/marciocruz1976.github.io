@@ -27,7 +27,7 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: visible;
+            overflow: hidden;
         }
 
         .header {
@@ -35,6 +35,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            border-radius: 20px 20px 0 0;
         }
 
         .header h1 {
@@ -49,11 +50,10 @@
         }
 
         .main-content {
-            display: grid-column;
+            display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             padding: 30px;
-            overflow: visible;
             align-items: start;
         }
 
@@ -63,9 +63,7 @@
             padding: 25px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             border: 2px solid #f0f0f0;
-            overflow: visible;
             min-height: 280px;
-            width: 100%;
             display: flex;
             flex-direction: column;
         }
@@ -76,18 +74,20 @@
             font-size: 1.5em;
             border-bottom: 3px solid #3498db;
             padding-bottom: 10px;
-            flex-shrink: 0;
         }
 
+        /* CORREÇÃO PRINCIPAL: Input group mais flexível */
         .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 100px 120px;
+            display: flex;
+            flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 15px;
-            align-items: center;
+            align-items: stretch;
         }
 
         .input-group input {
+            flex: 1;
+            min-width: 120px;
             padding: 12px;
             border: 2px solid #ddd;
             border-radius: 8px;
@@ -101,6 +101,12 @@
             box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
         }
 
+        /* Input de quantidade menor */
+        .input-group input[placeholder*="Quantidade"] {
+            flex: 0 0 100px;
+            min-width: 100px;
+        }
+
         .btn {
             padding: 12px 20px;
             border: none;
@@ -109,6 +115,12 @@
             font-weight: bold;
             transition: all 0.3s ease;
             font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .input-group .btn {
+            flex: 0 0 120px;
+            min-width: 120px;
         }
 
         .btn-primary {
@@ -138,6 +150,7 @@
             padding: 15px 30px;
             margin: 20px auto;
             display: block;
+            width: fit-content;
         }
 
         .btn-success:hover {
@@ -152,6 +165,7 @@
             padding: 15px 30px;
             margin: 20px auto;
             display: block;
+            width: fit-content;
         }
 
         .btn-pdf:hover {
@@ -179,6 +193,7 @@
         .results {
             grid-column: 1 / -1;
             margin-top: 30px;
+            padding: 0 30px 30px;
             overflow-x: auto;
         }
 
@@ -203,7 +218,6 @@
             margin: 20px 0;
             position: relative;
             background: linear-gradient(45deg, #ecf0f1, #bdc3c7);
-            overflow: visible;
             min-height: 200px;
         }
 
@@ -272,6 +286,33 @@
             margin-bottom: 5px;
         }
 
+        /* Melhorias para as listas */
+        .list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 300px;
+            padding-right: 5px;
+        }
+
+        .list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .list-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .list-container::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .list-container::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        /* Media queries melhoradas */
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -279,13 +320,15 @@
             }
             
             .input-group {
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
+                flex-direction: column;
+                gap: 10px;
             }
             
-            .input-group input:nth-child(3),
-            .input-group button {
-                grid-column: 1 / -1;
+            .input-group input,
+            .input-group .btn {
+                flex: 1;
+                min-width: unset;
+                width: 100%;
             }
             
             .header h1 {
@@ -301,22 +344,51 @@
                 margin: 10px;
                 border-radius: 15px;
             }
+
+            .btn-success, .btn-pdf {
+                width: 100%;
+            }
         }
 
-        @media (max-width: 1200px) {
-            .input-group {
-                grid-template-columns: 1fr 1fr 80px 100px;
-                gap: 8px;
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .input-group input {
+                min-width: 100px;
             }
             
-            .input-group input {
+            .input-group input[placeholder*="Quantidade"] {
+                flex: 0 0 80px;
+                min-width: 80px;
+            }
+            
+            .input-group .btn {
+                flex: 0 0 100px;
+                min-width: 100px;
                 font-size: 13px;
+                padding: 12px 15px;
+            }
+        }
+
+        /* Para telas muito pequenas */
+        @media (max-width: 480px) {
+            body {
                 padding: 10px;
             }
             
-            .btn {
-                padding: 10px 15px;
-                font-size: 13px;
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .main-content {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .section {
+                padding: 15px;
             }
         }
     </style>
@@ -338,7 +410,7 @@
                     <input type="number" id="stockQuantity" placeholder="Quantidade" min="1" value="1">
                     <button class="btn btn-primary" onclick="addStock()">Adicionar</button>
                 </div>
-                <div id="stockList"></div>
+                <div class="list-container" id="stockList"></div>
             </div>
 
             <div class="section">
@@ -349,14 +421,18 @@
                     <input type="number" id="pieceQuantity" placeholder="Quantidade" min="1" value="1">
                     <button class="btn btn-primary" onclick="addPiece()">Adicionar</button>
                 </div>
-                <div id="pieceList"></div>
+                <div class="list-container" id="pieceList"></div>
             </div>
         </div>
 
-        <button class="btn btn-success" onclick="optimizeCuts()">🎯 Otimizar Cortes</button>
+        <div style="text-align: center;">
+            <button class="btn btn-success" onclick="optimizeCuts()">🎯 Otimizar Cortes</button>
+        </div>
         
         <!-- Botão para exportar para PDF (inicialmente escondido) -->
-        <button id="exportPdfBtn" class="btn btn-pdf" onclick="exportToPDF()" style="display: none;">📄 Exportar para PDF</button>
+        <div style="text-align: center;">
+            <button id="exportPdfBtn" class="btn btn-pdf" onclick="exportToPDF()" style="display: none;">📄 Exportar para PDF</button>
+        </div>
 
         <div id="results" class="results"></div>
     </div>
