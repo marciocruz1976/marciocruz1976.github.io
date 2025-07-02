@@ -1,71 +1,1006 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Venda de perfis cortados</title>  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otimizador de Corte - Chapas de Vidro</title>
+    <!-- Bibliotecas para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: visible;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid-column;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+            overflow: visible;
+            align-items: start;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid #f0f0f0;
+            overflow: visible;
+            min-height: 280px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 100px 120px;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+            font-size: 18px;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            font-size: 18px;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .list-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .results {
+            grid-column: 1 / -1;
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        .result-sheet {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid #27ae60;
+        }
+
+        .result-sheet h3 {
+            color: #27ae60;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .cut-visual {
+            border: 3px solid #2c3e50;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            background: linear-gradient(45deg, #ecf0f1, #bdc3c7);
+            overflow: visible;
+            min-height: 200px;
+        }
+
+        .cut-piece {
+            position: absolute;
+            border: 2px solid #e74c3c;
+            background: rgba(52, 152, 219, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cut-piece:hover {
+            background: rgba(52, 152, 219, 0.5);
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .cut-piece.rotated {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: #27ae60;
+        }
+
+        .cut-piece.rotated:hover {
+            background: rgba(46, 204, 113, 0.5);
+        }
+
+        .summary {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .summary h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            
+            .input-group input:nth-child(3),
+            .input-group button {
+                grid-column: 1 / -1;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .input-group {
+                grid-template-columns: 1fr 1fr 80px 100px;
+                gap: 8px;
+            }
+            
+            .input-group input {
+                font-size: 13px;
+                padding: 10px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Venda de perfis cortados</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Venda de Perfis Cortados</h1>
+    <div class="container">
+        <div class="header">
+            <h1>🔷 Otimizador de Corte</h1>
+            <p>Sistema inteligente para otimização de chapas de vidro</p>
+            <p>Marcio Cruz - junho/2025</p>			
+        </div>
 
-  <label for="precoKg">Preço do Kg:</label>
-  <input type="number" id="precoKg" step="0.01" required>
+        <div class="main-content">
+            <div class="section">
+                <h2>📋 Estoque de Chapas</h2>
+                <div class="input-group">
+                    <input type="number" id="stockWidth" placeholder="Largura (mm)" min="1">
+                    <input type="number" id="stockHeight" placeholder="Altura (mm)" min="1">
+                    <input type="number" id="stockQuantity" placeholder="Quantidade" min="1" value="1">
+                    <button class="btn btn-primary" onclick="addStock()">Adicionar</button>
+                </div>
+                <div id="stockList"></div>
+            </div>
 
-  <label for="medidaCompra">Medida a comprar (mm):</label>
-  <input type="number" id="medidaCompra" value="1">
+            <div class="section">
+                <h2>✂️ Peças Necessárias</h2>
+                <div class="input-group">
+                    <input type="number" id="pieceWidth" placeholder="Largura (mm)" min="1">
+                    <input type="number" id="pieceHeight" placeholder="Altura (mm)" min="1">
+                    <input type="number" id="pieceQuantity" placeholder="Quantidade" min="1" value="1">
+                    <button class="btn btn-primary" onclick="addPiece()">Adicionar</button>
+                </div>
+                <div id="pieceList"></div>
+            </div>
+        </div>
 
-  <label for="peso">Peso da vara (kg):</label>
-  <input type="number" id="peso" value="6">
+        <button class="btn btn-success" onclick="optimizeCuts()">🎯 Otimizar Cortes</button>
+        
+        <!-- Botão para exportar para PDF (inicialmente escondido) -->
+        <button id="exportPdfBtn" class="btn btn-pdf" onclick="exportToPDF()" style="display: none;">📄 Exportar para PDF</button>
 
-  <button onclick="calcularValorVenda()">Calcular</button>
+        <div id="results" class="results"></div>
+    </div>
 
-  <h2>Valor de Venda: <span id="valorVenda">0</span></h2>
+    <script>
+        // Inicializa o jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        let stockSheets = [];
+        let requiredPieces = [];
+        let nextSheetId = 1;
+        let nextPieceId = 1;
 
-  <script>
-    function calcularValorVenda() {
-      const precoKg = parseFloat(document.getElementById('precoKg').value);
-      console.log('precoKg: ' + precoKg);
-      const medidaCompra = parseFloat(document.getElementById('medidaCompra').value);
-      const peso = parseFloat(document.getElementById('peso').value);
-      const valorVendaSpan = document.getElementById('valorVenda');
+        function addStock() {
+            const width = parseInt(document.getElementById('stockWidth').value);
+            const height = parseInt(document.getElementById('stockHeight').value);
+            const quantity = parseInt(document.getElementById('stockQuantity').value);
 
-      const pesoCompra = (peso / 6) * medidaCompra;
-      console.log('pesoCompra: ' + pesoCompra);
-      const custo = (pesoCompra * precoKg)/1000;
-      console.log('custo: ' + custo);
+            if (!width || !height || !quantity) {
+                alert('Por favor, preencha todos os campos do estoque');
+                return;
+            }
 
-      //const valorVenda = ((custo * 1.11)/1000).toFixed(2); // Acréscimo de 11%
+            for (let i = 0; i < quantity; i++) {
+                stockSheets.push({
+                    id: nextSheetId++,
+                    width: width,
+                    height: height,
+                    used: false
+                });
+            }
 
-      const valorVenda = (custo * 2.22)
-      console.log('valorVenda: ' + valorVenda);
-      
-      valorVendaSpan.textContent = valorVenda.toFixed(2);
+            updateStockDisplay();
+            clearStockInputs();
+        }
 
+        function addPiece() {
+            const width = parseInt(document.getElementById('pieceWidth').value);
+            const height = parseInt(document.getElementById('pieceHeight').value);
+            const quantity = parseInt(document.getElementById('pieceQuantity').value);
 
-    }
-  </script>
-</body>
-</html>
-<!-- partial -->
-  
+            if (!width || !height || !quantity) {
+                alert('Por favor, preencha todos os campos da peça');
+                return;
+            }
+
+            for (let i = 0; i < quantity; i++) {
+                requiredPieces.push({
+                    id: nextPieceId++,
+                    width: width,
+                    height: height,
+                    placed: false
+                });
+            }
+
+            updatePieceDisplay();
+            clearPieceInputs();
+        }
+
+        function removeStock(id) {
+            stockSheets = stockSheets.filter(sheet => sheet.id !== id);
+            updateStockDisplay();
+        }
+
+        function removePiece(id) {
+            requiredPieces = requiredPieces.filter(piece => piece.id !== id);
+            updatePieceDisplay();
+        }
+
+        function updateStockDisplay() {
+            const list = document.getElementById('stockList');
+            list.innerHTML = '';
+
+            const grouped = {};
+            stockSheets.forEach(sheet => {
+                const key = `${sheet.width}x${sheet.height}`;
+                if (!grouped[key]) {
+                    grouped[key] = { width: sheet.width, height: sheet.height, count: 0, ids: [] };
+                }
+                grouped[key].count++;
+                grouped[key].ids.push(sheet.id);
+            });
+
+            Object.values(grouped).forEach(group => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <span><strong>${group.width} x ${group.height} mm</strong> - Quantidade: ${group.count}</span>
+                    <button class="btn btn-danger" onclick="removeStockGroup('${group.width}x${group.height}')">Remover</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updatePieceDisplay() {
+            const list = document.getElementById('pieceList');
+            list.innerHTML = '';
+
+            const grouped = {};
+            requiredPieces.forEach(piece => {
+                const key = `${piece.width}x${piece.height}`;
+                if (!grouped[key]) {
+                    grouped[key] = { width: piece.width, height: piece.height, count: 0, ids: [] };
+                }
+                grouped[key].count++;
+                grouped[key].ids.push(piece.id);
+            });
+
+            Object.values(grouped).forEach(group => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <span><strong>${group.width} x ${group.height} mm</strong> - Quantidade: ${group.count}</span>
+                    <button class="btn btn-danger" onclick="removePieceGroup('${group.width}x${group.height}')">Remover</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function removeStockGroup(key) {
+            const [width, height] = key.split('x').map(Number);
+            stockSheets = stockSheets.filter(sheet => !(sheet.width === width && sheet.height === height));
+            updateStockDisplay();
+        }
+
+        function removePieceGroup(key) {
+            const [width, height] = key.split('x').map(Number);
+            requiredPieces = requiredPieces.filter(piece => !(piece.width === width && piece.height === height));
+            updatePieceDisplay();
+        }
+
+        function clearStockInputs() {
+            document.getElementById('stockWidth').value = '';
+            document.getElementById('stockHeight').value = '';
+            document.getElementById('stockQuantity').value = '1';
+        }
+
+        function clearPieceInputs() {
+            document.getElementById('pieceWidth').value = '';
+            document.getElementById('pieceHeight').value = '';
+            document.getElementById('pieceQuantity').value = '1';
+        }
+
+        function canFitPiece(sheet, piece, placedPieces, allowRotation = true) {
+            // Lista de orientações possíveis
+            const orientations = [
+                { width: piece.width, height: piece.height, rotated: false },
+            ];
+            
+            // Adiciona rotação se permitida e as dimensões forem diferentes
+            if (allowRotation && piece.width !== piece.height) {
+                orientations.push({ width: piece.height, height: piece.width, rotated: true });
+            }
+            
+            // Testa cada orientação
+            for (let orientation of orientations) {
+                // Verifica se a peça cabe na chapa na orientação atual
+                for (let x = 0; x <= sheet.width - orientation.width; x++) {
+                    for (let y = 0; y <= sheet.height - orientation.height; y++) {
+                        let canPlace = true;
+                        
+                        // Verifica sobreposição com peças já colocadas
+                        for (let placed of placedPieces) {
+                            if (!(x >= placed.x + placed.width || 
+                                  x + orientation.width <= placed.x || 
+                                  y >= placed.y + placed.height || 
+                                  y + orientation.height <= placed.y)) {
+                                canPlace = false;
+                                break;
+                            }
+                        }
+                        
+                        if (canPlace) {
+                            return { 
+                                x, 
+                                y, 
+                                width: orientation.width, 
+                                height: orientation.height, 
+                                rotated: orientation.rotated 
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function optimizeCuts() {
+            if (stockSheets.length === 0) {
+                alert('Por favor, adicione pelo menos uma chapa ao estoque');
+                return;
+            }
+
+            if (requiredPieces.length === 0) {
+                alert('Por favor, adicione pelo menos uma peça necessária');
+                return;
+            }
+
+            // Reset do estado
+            stockSheets.forEach(sheet => sheet.used = false);
+            requiredPieces.forEach(piece => piece.placed = false);
+
+            const results = [];
+            const unplacedPieces = [];
+
+            // Ordena as peças por área (maiores primeiro)
+            const sortedPieces = [...requiredPieces].sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+            for (let piece of sortedPieces) {
+                if (piece.placed) continue;
+
+                let placed = false;
+
+                // Tenta colocar na primeira chapa disponível
+                for (let sheet of stockSheets) {
+                    if (sheet.used) {
+                        // Verifica se cabe na chapa já em uso
+                        const result = results.find(r => r.sheetId === sheet.id);
+                        if (result) {
+                            const position = canFitPiece(sheet, piece, result.pieces);
+                            if (position) {
+                                result.pieces.push({
+                                    id: piece.id,
+                                    originalWidth: piece.width,
+                                    originalHeight: piece.height,
+                                    width: position.width,
+                                    height: position.height,
+                                    x: position.x,
+                                    y: position.y,
+                                    rotated: position.rotated
+                                });
+                                piece.placed = true;
+                                placed = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // Verifica se a peça cabe em uma nova chapa
+                        const position = canFitPiece(sheet, piece, []);
+                        if (position) {
+                            results.push({
+                                sheetId: sheet.id,
+                                sheetWidth: sheet.width,
+                                sheetHeight: sheet.height,
+                                pieces: [{
+                                    id: piece.id,
+                                    originalWidth: piece.width,
+                                    originalHeight: piece.height,
+                                    width: position.width,
+                                    height: position.height,
+                                    x: position.x,
+                                    y: position.y,
+                                    rotated: position.rotated
+                                }]
+                            });
+                            sheet.used = true;
+                            piece.placed = true;
+                            placed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!placed) {
+                    unplacedPieces.push(piece);
+                }
+            }
+
+            displayResults(results, unplacedPieces);
+            
+            // Mostra o botão de exportar para PDF
+            document.getElementById('exportPdfBtn').style.display = 'block';
+        }
+
+        function displayResults(results, unplacedPieces) {
+            const resultsDiv = document.getElementById('results');
+            let html = '';
+
+            if (results.length === 0) {
+                html = '<div class="summary"><h3>⚠️ Nenhuma peça pôde ser cortada</h3><p>Verifique se as dimensões das peças são compatíveis com as chapas disponíveis.</p></div>';
+            } else {
+                    results.forEach((result, index) => {
+                        // Calcula dimensões proporcionais mantendo aspecto
+                        const maxWidth = 500;
+                        const maxHeight = 400;
+                        let displayWidth, displayHeight;
+                        
+                        const aspectRatio = result.sheetWidth / result.sheetHeight;
+                        
+                        if (aspectRatio > 1) {
+                            // Chapa mais larga que alta
+                            displayWidth = Math.min(maxWidth, 500);
+                            displayHeight = displayWidth / aspectRatio;
+                        } else {
+                            // Chapa mais alta que larga
+                            displayHeight = Math.min(maxHeight, 400);
+                            displayWidth = displayHeight * aspectRatio;
+                        }
+                        
+                        // Garante dimensões mínimas
+                        if (displayWidth < 200) displayWidth = 200;
+                        if (displayHeight < 150) displayHeight = 150;
+
+                        html += `
+                            <div class="result-sheet" id="result-sheet-${index}">
+                                <h3>📋 Chapa ${index + 1} - ${result.sheetWidth} x ${result.sheetHeight} mm</h3>
+                                <div class="cut-visual" style="width: ${displayWidth}px; height: ${displayHeight}px; position: relative;">
+                        `;
+
+                        result.pieces.forEach(piece => {
+                            const scaleX = displayWidth / result.sheetWidth;
+                            const scaleY = displayHeight / result.sheetHeight;
+                            
+                            const rotationSymbol = piece.rotated ? ' ↻' : '';
+                            const displayText = `${piece.originalWidth}x${piece.originalHeight}${rotationSymbol}`;
+                            
+                            html += `
+                                <div class="cut-piece ${piece.rotated ? 'rotated' : ''}" style="
+                                    left: ${piece.x * scaleX}px;
+                                    top: ${piece.y * scaleY}px;
+                                    width: ${piece.width * scaleX}px;
+                                    height: ${piece.height * scaleY}px;
+                                " title="Peça ${piece.rotated ? 'ROTACIONADA' : 'NORMAL'}: ${piece.originalWidth}x${piece.originalHeight}mm">${displayText}</div>
+                            `;
+                        });
+
+                        html += '</div>';
+                        
+                        html += '<div><strong>Peças cortadas:</strong><ul>';
+                        result.pieces.forEach(piece => {
+                            const rotationStatus = piece.rotated ? ' (ROTACIONADA 90°)' : ' (NORMAL)';
+                            const currentDimensions = piece.rotated ? `${piece.height}x${piece.width}` : `${piece.width}x${piece.height}`;
+                            html += `<li>${piece.originalWidth} x ${piece.originalHeight} mm → ${currentDimensions} mm${rotationStatus} (Posição: ${piece.x}, ${piece.y})</li>`;
+                        });
+                        html += '</ul></div></div>';
+                    });
+
+                // Resumo
+                const totalPieces = requiredPieces.length;
+                const placedPieces = totalPieces - unplacedPieces.length;
+                const usedSheets = results.length;
+                const totalSheets = stockSheets.length;
+                const efficiency = ((placedPieces / totalPieces) * 100).toFixed(1);
+
+                html += `
+                    <div class="summary" id="summary-section">
+                        <h3>📊 Resumo da Otimização</h3>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${placedPieces}/${totalPieces}</div>
+                                <div>Peças Cortadas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${usedSheets}/${totalSheets}</div>
+                                <div>Chapas Utilizadas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${efficiency}%</div>
+                                <div>Eficiência</div>
+                            </div>
+                        </div>
+                `;
+
+                if (unplacedPieces.length > 0) {
+                    html += '<div style="margin-top: 20px; padding: 15px; background: rgba(231, 76, 60, 0.2); border-radius: 10px;">';
+                    html += '<h4>⚠️ Peças não cortadas:</h4><ul>';
+                    unplacedPieces.forEach(piece => {
+                        html += `<li>${piece.width} x ${piece.height} mm</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+
+                html += '</div>';
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Função para exportar para PDF
+		function exportToPDF() {
+			// Cria um novo documento PDF com margens maiores
+			const doc = new jsPDF('p', 'pt', 'a4');
+			const pageWidth = doc.internal.pageSize.getWidth();
+			const margin = 40;
+			const contentWidth = pageWidth - 2 * margin;
+			
+			// Configurações de fonte
+			const titleSize = 16;
+			const headerSize = 14;
+			const normalSize = 10;
+			const smallSize = 8;
+			
+			// Título do documento
+			doc.setFontSize(titleSize);
+			doc.setTextColor(40);
+			doc.setFont('helvetica', 'bold');
+			doc.text('Relatório de Otimização de Corte', margin, 40);
+			
+			doc.setFontSize(normalSize);
+			doc.setFont('helvetica', 'normal');
+			doc.text(`Data: ${new Date().toLocaleDateString()}`, margin, 60);
+			
+			// Adiciona informações sobre chapas e peças
+			doc.setFontSize(headerSize);
+			doc.setFont('helvetica', 'bold');
+			doc.text('Chapas Disponíveis:', margin, 90);
+			doc.setFontSize(normalSize);
+			doc.setFont('helvetica', 'normal');
+			
+			let yPosition = 110;
+			
+			// Agrupa chapas por dimensões
+			const groupedSheets = {};
+			stockSheets.forEach(sheet => {
+				const key = `${sheet.width}x${sheet.height}`;
+				if (!groupedSheets[key]) {
+					groupedSheets[key] = { width: sheet.width, height: sheet.height, count: 0 };
+				}
+				groupedSheets[key].count++;
+			});
+			
+			// Adiciona chapas ao PDF
+			Object.values(groupedSheets).forEach(group => {
+				if (yPosition > 700) {
+					doc.addPage();
+					yPosition = margin;
+				}
+				doc.text(`- ${group.width} x ${group.height} mm: ${group.count} unidade(s)`, margin + 10, yPosition);
+				yPosition += 20;
+			});
+			
+			yPosition += 10;
+			doc.setFontSize(headerSize);
+			doc.setFont('helvetica', 'bold');
+			doc.text('Peças Solicitadas:', margin, yPosition);
+			yPosition += 20;
+			doc.setFontSize(normalSize);
+			doc.setFont('helvetica', 'normal');
+			
+			// Agrupa peças por dimensões
+			const groupedPieces = {};
+			requiredPieces.forEach(piece => {
+				const key = `${piece.width}x${piece.height}`;
+				if (!groupedPieces[key]) {
+					groupedPieces[key] = { width: piece.width, height: piece.height, count: 0 };
+				}
+				groupedPieces[key].count++;
+			});
+			
+			// Adiciona peças ao PDF
+			Object.values(groupedPieces).forEach(group => {
+				if (yPosition > 700) {
+					doc.addPage();
+					yPosition = margin;
+				}
+				doc.text(`- ${group.width} x ${group.height} mm: ${group.count} unidade(s)`, margin + 10, yPosition);
+				yPosition += 20;
+			});
+			
+			// Adiciona os resultados
+			const resultsDiv = document.getElementById('results');
+			const resultSheets = resultsDiv.querySelectorAll('.result-sheet');
+			
+			// Verifica se há resultados para exportar
+			if (resultSheets.length === 0) {
+				doc.addPage();
+				doc.setFontSize(headerSize);
+				doc.text('Nenhuma peça pôde ser cortada com as chapas disponíveis.', margin, margin);
+				doc.save('Otimizacao_de_Corte.pdf');
+				return;
+			}
+			
+			// Processa cada chapa de resultado
+			const processSheets = async (index = 0) => {
+				if (index >= resultSheets.length) {
+					// Todas as chapas processadas, adiciona resumo na última página
+					addSummary(doc, margin, contentWidth, yPosition, resultsDiv);
+					doc.save('Otimizacao_de_Corte.pdf');
+					return;
+				}
+				
+				const sheet = resultSheets[index];
+				const isLastSheet = index === resultSheets.length - 1;
+				
+				// Nova página para cada chapa (exceto se for a primeira)
+				if (index > 0) {
+					doc.addPage();
+					yPosition = margin;
+				}
+				
+				// Adiciona título da chapa
+				doc.setFontSize(headerSize);
+				doc.setFont('helvetica', 'bold');
+				const sheetTitle = sheet.querySelector('h3').textContent.replace('📋 ', '');
+				doc.text(`Chapa ${index + 1}: ${sheetTitle}`, margin, yPosition);
+				yPosition += 25;
+				
+				// Captura a visualização do corte como imagem
+				const cutVisual = sheet.querySelector('.cut-visual');
+				
+				try {
+					const canvas = await html2canvas(cutVisual, {
+						scale: 2,
+						logging: false,
+						useCORS: true
+					});
+					
+					const imgData = canvas.toDataURL('image/png');
+					
+					// Calcula dimensões para a imagem no PDF
+					const maxImgWidth = contentWidth * 0.8;
+					const imgWidth = Math.min(maxImgWidth, canvas.width * 0.5);
+					const imgHeight = (canvas.height * imgWidth) / canvas.width;
+					const imgX = (pageWidth - imgWidth) / 2;
+					
+					// Verifica se há espaço para a imagem e o resumo (se for a última chapa)
+					if (isLastSheet && (yPosition + imgHeight + 150) > 700) {
+						// Não há espaço suficiente, adiciona o resumo em nova página
+						doc.addImage(imgData, 'PNG', imgX, yPosition, imgWidth, imgHeight);
+						
+						// Processa lista de peças
+						yPosition = await addPiecesList(doc, sheet, margin, contentWidth, yPosition + imgHeight + 20);
+						
+						// Adiciona resumo em nova página
+						addSummary(doc, margin, contentWidth, margin, resultsDiv);
+					} else {
+						// Há espaço suficiente na página atual
+						doc.addImage(imgData, 'PNG', imgX, yPosition, imgWidth, imgHeight);
+						yPosition += imgHeight + 20;
+						
+						// Processa lista de peças
+						yPosition = await addPiecesList(doc, sheet, margin, contentWidth, yPosition);
+						
+						// Se for a última chapa, adiciona o resumo na mesma página
+						if (isLastSheet) {
+							addSummary(doc, margin, contentWidth, yPosition, resultsDiv);
+						}
+					}
+					
+					// Processa próxima chapa
+					processSheets(index + 1);
+				} catch (error) {
+					console.error('Erro ao processar chapa:', error);
+					processSheets(index + 1);
+				}
+			};
+			
+			// Inicia o processamento das chapas
+			processSheets();
+		}
+
+		// Função auxiliar para adicionar lista de peças
+		async function addPiecesList(doc, sheet, margin, contentWidth, yPosition) {
+			const piecesList = sheet.querySelector('ul');
+			if (piecesList) {
+				doc.setFontSize(8);
+				doc.setFont('helvetica', 'normal');
+				doc.text('Peças cortadas nesta chapa:', margin, yPosition);
+				yPosition += 15;
+				
+				const pieces = piecesList.querySelectorAll('li');
+				for (const piece of pieces) {
+					if (yPosition > 700) {
+						doc.addPage();
+						yPosition = margin;
+					}
+					
+					const pieceText = piece.textContent;
+					const lines = doc.splitTextToSize(pieceText, contentWidth - 20);
+					
+					for (const line of lines) {
+						if (yPosition > 700) {
+							doc.addPage();
+							yPosition = margin;
+						}
+						doc.text(line, margin + 10, yPosition);
+						yPosition += 10;
+					}
+					
+					yPosition += 5;
+				}
+			}
+			return yPosition;
+		}
+
+		// Função auxiliar para adicionar o resumo
+		function addSummary(doc, margin, contentWidth, yPosition, resultsDiv) {
+			const summary = resultsDiv.querySelector('.summary');
+			if (!summary) return yPosition;
+			
+			// Verifica se precisa de nova página
+			if (yPosition > 550) { // Deixa ~150pt para o resumo
+				doc.addPage();
+				yPosition = margin;
+			}
+			
+			doc.setFontSize(14);
+			doc.setFont('helvetica', 'bold');
+			doc.text('Resumo da Otimização', margin, yPosition);
+			yPosition += 25;
+			
+			doc.setFontSize(10);
+			doc.setFont('helvetica', 'normal');
+			
+			const stats = summary.querySelectorAll('.stat-item');
+			for (const stat of stats) {
+				if (yPosition > 700) {
+					doc.addPage();
+					yPosition = margin;
+				}
+				
+				const value = stat.querySelector('.stat-value').textContent;
+				const label = stat.querySelector('div:last-child').textContent;
+				
+				doc.setFont('helvetica', 'bold');
+				doc.text(`${label}:`, margin, yPosition);
+				doc.setFont('helvetica', 'normal');
+				doc.text(value, margin + 100, yPosition);
+				yPosition += 20;
+			}
+			
+			// Adiciona peças não cortadas se houver
+			const unplacedSection = summary.querySelector('div > h4');
+			if (unplacedSection) {
+				yPosition += 10;
+				doc.setFont('helvetica', 'bold');
+				doc.text('Peças Não Cortadas:', margin, yPosition);
+				yPosition += 20;
+				
+				const unplacedItems = summary.querySelectorAll('div > ul > li');
+				for (const item of unplacedItems) {
+					if (yPosition > 700) {
+						doc.addPage();
+						yPosition = margin;
+					}
+					
+					doc.setFont('helvetica', 'normal');
+					doc.text(`- ${item.textContent}`, margin + 10, yPosition);
+					yPosition += 15;
+				}
+			}
+			
+			return yPosition;
+		}
+    </script>
 </body>
 </html>
